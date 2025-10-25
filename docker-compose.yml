@@ -1,0 +1,22 @@
+services:
+  DB:
+    image: postgres
+    environment:
+      POSTGRES_USER: fleetuser
+      POSTGRES_PASSWORD: fleetpass
+      POSTGRES_DB: fleetdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    volumes:
+      - adminer_data:/var/lib/adminer
+
+
+volumes:
+  db_data:
+  adminer_data:
