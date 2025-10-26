@@ -5,7 +5,7 @@ const SECRET_KEY = import.meta.env.VITE_APP_SECRET_KEY || "simon-secret-key"
 
 interface StoredData<T> {
   value: T
-  expiresAt?: number // timestamp de expiración (opcional)
+  expiresAt?: number
 }
 
 // Configuración base de localforage
@@ -72,7 +72,7 @@ export const localStore = {
   },
 
   /**
-   * Lista todas las claves guardadas (útil para debugging)
+   * Lista todas las claves guardadas
    */
   async keys(): Promise<string[]> {
     return await localforage.keys()

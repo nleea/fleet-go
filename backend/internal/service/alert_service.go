@@ -3,9 +3,9 @@ package service
 import (
 	"time"
 
-	"github.com/nleea/fleet-monitoring/internal/appcore"
-	"github.com/nleea/fleet-monitoring/internal/domain"
-	"github.com/nleea/fleet-monitoring/internal/repository"
+	"github.com/nleea/fleet-monitoring/backend/internal/appcore"
+	"github.com/nleea/fleet-monitoring/backend/internal/domain"
+	"github.com/nleea/fleet-monitoring/backend/internal/repository"
 )
 
 type AlertService struct {

@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nleea/fleet-monitoring/internal/appcore"
-	"github.com/nleea/fleet-monitoring/internal/service"
+	"github.com/nleea/fleet-monitoring/backend/internal/appcore"
+	"github.com/nleea/fleet-monitoring/backend/internal/service"
 )
 
 type loginRequest struct {

@@ -6,8 +6,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/nleea/fleet-monitoring/internal/repository"
-	"github.com/nleea/fleet-monitoring/internal/utils"
+	"github.com/nleea/fleet-monitoring/backend/internal/repository"
+	"github.com/nleea/fleet-monitoring/backend/internal/utils"
 )
 
 type AuthService struct {

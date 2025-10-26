@@ -102,10 +102,6 @@ def simulate_device(device):
         except Exception as e:
             print(f"[x] Error conexión: {e}")
 
-        # guardar en log local
-        with open(LOG_FILE, "a") as f:
-            f.write(json.dumps(payload) + "\n")
-
         time.sleep(INTERVAL)
 
 

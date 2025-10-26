@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/nleea/fleet-monitoring/internal/appcore"
-	"github.com/nleea/fleet-monitoring/internal/middleware"
-	appws "github.com/nleea/fleet-monitoring/internal/ws"
+	"github.com/nleea/fleet-monitoring/backend/internal/appcore"
+	"github.com/nleea/fleet-monitoring/backend/internal/middleware"
+	appws "github.com/nleea/fleet-monitoring/backend/internal/ws"
 )
 
 var upgrader = websocket.Upgrader{

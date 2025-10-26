@@ -5,7 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Badge } from "./ui/badge"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ReferenceLine,
+  Brush,
+} from "recharts"
 import { TrendingUp, Fuel, WifiOff } from "lucide-react"
 import { useFleetStore } from "../lib/useFleetStore"
 
@@ -24,9 +35,38 @@ interface HistoricalDataPanelProps {
   deviceName: string
 }
 
+interface CustomTooltipProps {
+  active?: any;
+  payload?: any;
+  label?: any;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg p-3 animate-in fade-in-0 zoom-in-95 duration-200">
+        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <div key={index} className="flex items-center gap-2 text-sm">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+            <span className="text-slate-600 dark:text-slate-400">{entry.name}:</span>
+            <span className="font-semibold text-slate-900 dark:text-slate-100">
+              {typeof entry.value === "number" ? entry.value.toFixed(1) : entry.value}
+              {entry.name?.includes("Velocidad") ? " km/h" : "%"}
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+  return null
+}
+
 export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPanelProps) {
   const [timeRange, setTimeRange] = useState("0")
   const [localTelemetry, setLocalTelemetry] = useState<Telemetry[]>([])
+  const [activeChart, setActiveChart] = useState<string>("velocidad")
+  const [, setHoveredPoint] = useState<any>(null)
 
   // Usar el store de Zustand
   const { telemetry, isOnline } = useFleetStore()
@@ -35,7 +75,6 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
   useEffect(() => {
     const data = telemetry[String(deviceId)] || []
     setLocalTelemetry(data)
-    console.log(`[TELEMETRY] 📊 Cargados ${data.length} puntos para device ${deviceId}`)
   }, [deviceId, telemetry])
 
   // Agrupar por minuto para suavizar la frecuencia de actualización
@@ -54,8 +93,7 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
 
     // Promediar los valores dentro de cada minuto
     const averaged = Object.entries(groups).map(([bucket, items]) => {
-      const avg = (key: keyof Telemetry) =>
-        items.reduce((sum, i) => sum + (i[key] as number), 0) / items.length
+      const avg = (key: keyof Telemetry) => items.reduce((sum, i) => sum + (i[key] as number), 0) / items.length
 
       return {
         timestamp: new Date(Number(bucket)),
@@ -103,9 +141,7 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
         cutoff = null
     }
 
-    const filtered = cutoff
-      ? chartData.filter((d) => d.timestamp.getTime() >= cutoff)
-      : chartData
+    const filtered = cutoff ? chartData.filter((d) => d.timestamp.getTime() >= cutoff) : chartData
 
     return filtered.map((d) => ({
       timestamp: d.timestamp.toLocaleTimeString("es-ES", {
@@ -119,6 +155,14 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
     }))
   }, [chartData, timeRange])
 
+  const stats = useMemo(() => {
+    if (filteredData.length === 0) return { avgSpeed: 0, avgFuel: 0 }
+
+    const avgSpeed = filteredData.reduce((sum, d) => sum + d.velocidad, 0) / filteredData.length
+    const avgFuel = filteredData.reduce((sum, d) => sum + d.combustible, 0) / filteredData.length
+
+    return { avgSpeed, avgFuel }
+  }, [filteredData])
 
   return (
     <Card>
@@ -158,9 +202,7 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
         {filteredData.length === 0 ? (
           <div className="h-80 flex items-center justify-center text-slate-500">
             <div className="text-center">
-              <p className="text-lg font-medium mb-2">
-                {isOnline ? "Esperando datos..." : "No hay datos en caché"}
-              </p>
+              <p className="text-lg font-medium mb-2">{isOnline ? "Esperando datos..." : "No hay datos en caché"}</p>
               <p className="text-sm">
                 {isOnline
                   ? "Los datos aparecerán cuando el dispositivo envíe telemetría"
@@ -169,7 +211,7 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
             </div>
           </div>
         ) : (
-          <Tabs defaultValue="velocidad" className="space-y-4">
+          <Tabs value={activeChart} onValueChange={setActiveChart} className="space-y-4">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="velocidad" className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
@@ -184,35 +226,55 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
             <TabsContent value="velocidad" className="space-y-4">
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={filteredData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                    <XAxis
-                      dataKey="timestamp"
-                      className="text-xs"
-                      tick={{ fontSize: 12 }}
+                  <AreaChart
+                    data={filteredData}
+                    onMouseMove={(e) => setHoveredPoint((e as any).activePayload?.[0]?.payload)}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                  >
+                    <defs>
+                      <linearGradient id="colorVelocidad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-slate-200 dark:stroke-slate-700"
+                      opacity={0.5}
                     />
+                    <XAxis dataKey="timestamp" className="text-xs" tick={{ fontSize: 12 }} tickMargin={10} />
                     <YAxis
                       label={{ value: "km/h", angle: -90, position: "insideLeft" }}
                       tick={{ fontSize: 12 }}
+                      tickMargin={10}
                     />
                     <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '6px'
-                      }}
+                      content={<CustomTooltip />}
+                      cursor={{ stroke: "#3b82f6", strokeWidth: 2, strokeDasharray: "5 5" }}
                     />
-                    <Legend />
-                    <Line
+                    <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="circle" />
+                    <ReferenceLine
+                      y={stats.avgSpeed}
+                      stroke="#94a3b8"
+                      strokeDasharray="3 3"
+                      label={{ value: "Promedio", position: "right", fill: "#64748b", fontSize: 12 }}
+                    />
+                    {filteredData.length > 20 && (
+                      <Brush dataKey="timestamp" height={30} stroke="#3b82f6" fill="rgba(59, 130, 246, 0.1)" />
+                    )}
+                    <Area
                       type="monotone"
                       dataKey="velocidad"
                       stroke="#3b82f6"
-                      strokeWidth={2}
+                      strokeWidth={3}
+                      fill="url(#colorVelocidad)"
                       name="Velocidad (km/h)"
+                      animationDuration={1500}
+                      animationEasing="ease-in-out"
                       dot={false}
-                      animationDuration={300}
+                      activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
                     />
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
 
@@ -227,7 +289,7 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
                 <div>
                   <p className="text-sm text-slate-600 dark:text-slate-400">Máxima</p>
                   <p className="text-2xl font-bold">
-                    {Math.max(...filteredData.map(d => d.velocidad)).toFixed(1)} km/h
+                    {Math.max(...filteredData.map((d) => d.velocidad)).toFixed(1)} km/h
                   </p>
                 </div>
                 <div>
@@ -240,36 +302,62 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
             <TabsContent value="combustible" className="space-y-4">
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={filteredData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-700" />
-                    <XAxis
-                      dataKey="timestamp"
-                      className="text-xs"
-                      tick={{ fontSize: 12 }}
+                  <AreaChart
+                    data={filteredData}
+                    onMouseMove={(e) => setHoveredPoint((e as any).activePayload?.[0]?.payload)}
+                    onMouseLeave={() => setHoveredPoint(null)}
+                  >
+                    <defs>
+                      <linearGradient id="colorCombustible" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-slate-200 dark:stroke-slate-700"
+                      opacity={0.5}
                     />
+                    <XAxis dataKey="timestamp" className="text-xs" tick={{ fontSize: 12 }} tickMargin={10} />
                     <YAxis
                       label={{ value: "%", angle: -90, position: "insideLeft" }}
                       domain={[0, 100]}
                       tick={{ fontSize: 12 }}
+                      tickMargin={10}
                     />
                     <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '6px'
-                      }}
+                      content={<CustomTooltip />}
+                      cursor={{ stroke: "#10b981", strokeWidth: 2, strokeDasharray: "5 5" }}
                     />
-                    <Legend />
-                    <Line
+                    <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="circle" />
+                    <ReferenceLine
+                      y={stats.avgFuel}
+                      stroke="#94a3b8"
+                      strokeDasharray="3 3"
+                      label={{ value: "Promedio", position: "right", fill: "#64748b", fontSize: 12 }}
+                    />
+                    <ReferenceLine
+                      y={20}
+                      stroke="#ef4444"
+                      strokeDasharray="3 3"
+                      label={{ value: "Nivel bajo", position: "right", fill: "#ef4444", fontSize: 12 }}
+                    />
+                    {filteredData.length > 20 && (
+                      <Brush dataKey="timestamp" height={30} stroke="#10b981" fill="rgba(16, 185, 129, 0.1)" />
+                    )}
+                    <Area
                       type="monotone"
                       dataKey="combustible"
                       stroke="#10b981"
-                      strokeWidth={2}
+                      strokeWidth={3}
+                      fill="url(#colorCombustible)"
                       name="Combustible (%)"
+                      animationDuration={1500}
+                      animationEasing="ease-in-out"
                       dot={false}
-                      animationDuration={300}
+                      activeDot={{ r: 6, strokeWidth: 2, stroke: "#fff" }}
                     />
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
 
@@ -290,7 +378,7 @@ export function HistoricalDataPanel({ deviceId, deviceName }: HistoricalDataPane
                 <div>
                   <p className="text-sm text-slate-600 dark:text-slate-400">Mínimo</p>
                   <p className="text-2xl font-bold text-red-600">
-                    {Math.min(...filteredData.map(d => d.combustible)).toFixed(1)}%
+                    {Math.min(...filteredData.map((d) => d.combustible)).toFixed(1)}%
                   </p>
                 </div>
               </div>

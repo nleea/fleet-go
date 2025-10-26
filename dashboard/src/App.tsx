@@ -13,6 +13,7 @@ import { useLocalStore } from "./lib/useLocalstorage"
 import { useFleetStore } from "./lib/useFleetStore"
 import { Workbox } from "workbox-window"
 import { localStore } from "./lib/localstore"
+import { DevicesPanel } from "./components/device-panel";
 
 function App() {
   const [user, setUser] = useState<{ username: string; role: "admin" | "user" } | null>(null)
@@ -286,37 +287,7 @@ function App() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Device List */}
-              <div className="bg-white dark:bg-slate-800 rounded-lg border p-4">
-                <h3 className="font-semibold mb-4">Dispositivos ({mappedDevices.length})</h3>
-                <div className="space-y-2">
-                  {mappedDevices.map((device) => (
-                    <button
-                      key={device.id}
-                      onClick={() => setSelectedDeviceId(device.id)}
-                      className={`w-full p-3 rounded-lg border text-left transition-colors ${selectedDeviceId === device.id
-                        ? "bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800"
-                        : "hover:bg-slate-50 dark:hover:bg-slate-700"
-                        }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium">{device.name}</span>
-                        <div
-                          className={`w-2 h-2 rounded-full ${device.status === "active"
-                            ? "bg-green-500"
-                            : device.status === "idle"
-                              ? "bg-yellow-500"
-                              : "bg-red-500"
-                            }`}
-                        />
-                      </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
-                        {device.speed?.toFixed(1)} km/h • {device.fuel?.toFixed(1)}%
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
+              <DevicesPanel devices={mappedDevices} selectedDeviceId={selectedDeviceId} onDeviceSelect={setSelectedDeviceId} />
               {/* Alerts Panel */}
               {user.role === "admin" && <AlertsPanel isAdmin={true} />}
             </div>

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nleea/fleet-monitoring/internal/appcore"
-	"github.com/nleea/fleet-monitoring/internal/repository"
-	"github.com/nleea/fleet-monitoring/internal/service"
+	"github.com/nleea/fleet-monitoring/backend/internal/appcore"
+	"github.com/nleea/fleet-monitoring/backend/internal/repository"
+	"github.com/nleea/fleet-monitoring/backend/internal/service"
 )
 
 type sensorInput struct {

@@ -3,9 +3,10 @@ package service
 import (
 	"errors"
 	"fmt"
+	"strings"
 
-	"github.com/nleea/fleet-monitoring/internal/domain"
-	"github.com/nleea/fleet-monitoring/internal/repository"
+	"github.com/nleea/fleet-monitoring/backend/internal/domain"
+	"github.com/nleea/fleet-monitoring/backend/internal/repository"
 )
 
 type DeviceService struct {
@@ -47,8 +48,15 @@ func (s *DeviceService) ListByOwner(userID uint) ([]domain.Device, error) {
 }
 
 func maskExternalID(id string) string {
-	if len(id) < 4 {
-		return "DEV-****"
+	n := len(id)
+	if n == 0 {
+		return "DEV-********"
 	}
-	return fmt.Sprintf("DEV-****-%s", id[len(id)-4:])
+	if n <= 4 {
+		return fmt.Sprintf("DEV-%s%s", strings.Repeat("*", n), id[n-1:])
+	}
+	if n <= 8 {
+		return fmt.Sprintf("DEV-%s%s", strings.Repeat("*", n-3), id[n-3:])
+	}
+	return fmt.Sprintf("DEV-%s%s", strings.Repeat("*", n-4), id[n-4:])
 }

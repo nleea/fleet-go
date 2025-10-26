@@ -7,9 +7,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
-	"github.com/nleea/fleet-monitoring/internal/appcore"
-	"github.com/nleea/fleet-monitoring/internal/config"
-	"github.com/nleea/fleet-monitoring/internal/domain"
+	"github.com/nleea/fleet-monitoring/backend/internal/appcore"
+	"github.com/nleea/fleet-monitoring/backend/internal/config"
+	"github.com/nleea/fleet-monitoring/backend/internal/domain"
 )
 
 func hash(p string) string {

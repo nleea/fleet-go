@@ -35,12 +35,10 @@ export class FleetWebSocket {
 
           switch (message.channel) {
             case "telemetry":
-              // console.log("[WS] Telemetría recibida:", message.data)
               this.onTelemetryCallback?.(message.data)
               break
 
             case "alert":
-              // console.log("[WS] Alerta recibida:", message.data)
               this.onAlertCallback?.(message.data)
               break
 

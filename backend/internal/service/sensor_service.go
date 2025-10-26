@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nleea/fleet-monitoring/internal/domain"
-	"github.com/nleea/fleet-monitoring/internal/repository"
+	"github.com/nleea/fleet-monitoring/backend/internal/domain"
+	"github.com/nleea/fleet-monitoring/backend/internal/repository"
 
-	"github.com/nleea/fleet-monitoring/internal/ws"
+	"github.com/nleea/fleet-monitoring/backend/internal/ws"
 )
 
 type SensorService struct {

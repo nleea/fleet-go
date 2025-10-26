@@ -3,7 +3,7 @@ import { localStore } from "./localstore"
 import axiosClient from "./axiosClient"
 import { FleetWebSocket } from "./ws"
 
-interface Device {
+export interface Device {
   id: number
   external_id: string
   masked_id: string

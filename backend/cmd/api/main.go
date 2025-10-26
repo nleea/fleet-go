@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/nleea/fleet-monitoring/internal/api"
-	"github.com/nleea/fleet-monitoring/internal/appcore"
-	"github.com/nleea/fleet-monitoring/internal/config"
+	"github.com/nleea/fleet-monitoring/backend/internal/api"
+	"github.com/nleea/fleet-monitoring/backend/internal/appcore"
+	"github.com/nleea/fleet-monitoring/backend/internal/config"
 )
 
 func main() {

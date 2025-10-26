@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nleea/fleet-monitoring/internal/utils"
+	"github.com/nleea/fleet-monitoring/backend/internal/utils"
 )
 
 

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/nleea/fleet-monitoring/internal/config"
+	"github.com/nleea/fleet-monitoring/backend/internal/config"
 )
 
 

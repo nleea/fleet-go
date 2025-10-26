@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/nleea/fleet-monitoring/internal/domain"
+	"github.com/nleea/fleet-monitoring/backend/internal/domain"
 	"gorm.io/gorm"
 )
 

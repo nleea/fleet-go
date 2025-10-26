@@ -20,7 +20,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const { setValue: settoken,  } = useLocalStore("access_token", "", {
+  const { setValue: settoken, } = useLocalStore("access_token", "", {
     encrypted: true,
     ttlMs: 24 * 60 * 60 * 1000,
   })
@@ -34,21 +34,24 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     setLoading(true)
     setError("")
 
-    const { data: { token } } = await axiosClient.post('/auth/login', { email: username, password });
+    try {
+      const { data: { token } } = await axiosClient.post('/auth/login', { email: username, password });
 
-    if (token) {
-      settoken(token)
-      const { data: { user_id, role } } = await axiosClient.get('/protected/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setrole(role)
-      onLogin({ username: user_id, role: role })
-    } else {
-      setError("Credenciales inválidas")
+      if (token) {
+        settoken(token)
+        const { data: { user_id, role } } = await axiosClient.get('/protected/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setrole(role)
+        onLogin({ username: user_id, role: role })
+      } else {
+        setError("Credenciales inválidas")
+      }
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

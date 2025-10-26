@@ -4,15 +4,15 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/nleea/fleet-monitoring/internal/api/auth"
-	"github.com/nleea/fleet-monitoring/internal/api/devices"
-	"github.com/nleea/fleet-monitoring/internal/api/sensors"
+	"github.com/nleea/fleet-monitoring/backend/internal/api/auth"
+	"github.com/nleea/fleet-monitoring/backend/internal/api/devices"
+	"github.com/nleea/fleet-monitoring/backend/internal/api/sensors"
 
-	"github.com/nleea/fleet-monitoring/internal/appcore"
+	"github.com/nleea/fleet-monitoring/backend/internal/appcore"
 
-	"github.com/nleea/fleet-monitoring/internal/middleware"
+	"github.com/nleea/fleet-monitoring/backend/internal/middleware"
 
-	wsapi "github.com/nleea/fleet-monitoring/internal/api/ws"
+	wsapi "github.com/nleea/fleet-monitoring/backend/internal/api/ws"
 )
 
 func SetupRouter(app *appcore.App) *gin.Engine {

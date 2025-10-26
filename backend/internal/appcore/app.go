@@ -1,10 +1,10 @@
 package appcore
 
 import (
-	"github.com/nleea/fleet-monitoring/internal/config"
-	"github.com/nleea/fleet-monitoring/internal/utils"
-	"github.com/nleea/fleet-monitoring/internal/ws"
-	"github.com/nleea/fleet-monitoring/pkg/db"
+	"github.com/nleea/fleet-monitoring/backend/internal/config"
+	"github.com/nleea/fleet-monitoring/backend/internal/utils"
+	"github.com/nleea/fleet-monitoring/backend/internal/ws"
+	"github.com/nleea/fleet-monitoring/backend/pkg/db"
 	"gorm.io/gorm"
 )
 
