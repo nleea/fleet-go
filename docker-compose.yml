@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:15
+    container_name: fleet-db
+    environment:
+      POSTGRES_USER: fleet_user
+      POSTGRES_PASSWORD: fleet_pass
+      POSTGRES_DB: fleet_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "fleet_user"]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build: ./backend
+    container_name: fleet-backend
+    environment:
+      PORT: 8000
+      GIN_MODE: release
+      DB_DSN: "postgres://fleet_user:fleet_pass@db:5432/fleet_db?sslmode=disable"
+      JWT_SECRET: "supersecret"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  dashboard:
+    build: ./dashboard
+    container_name: fleet-frontend
+    depends_on:
+      - backend
+    ports:
+      - "4173:4173"
+
+volumes:
+  pgdata:

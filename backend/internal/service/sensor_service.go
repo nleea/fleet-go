@@ -86,7 +86,7 @@ func (s *SensorService) GetSensorDataByDeviceID(deviceID uint) (*[]domain.Sensor
 }
 
 func (s *SensorService) PredictiveFuelCheck(deviceID uint) (bool, float64, error) {
-	// Obtener más datos para mejor análisis de tendencia
+	// Análisis de tendencia
 	recent, err := s.sensorRepo.GetRecentByDevice(deviceID, 100)
 	if err != nil {
 		return false, 0, err

@@ -5,6 +5,62 @@
 
 > Este documento describe el **razonamiento de diseño**, la **elección del stack** y los **trade-offs** que asumimos para entregar un MVP sólido, extensible y listo. Incluye las **lecciones aprendidas** y retos encontrados.
 
+
+```
+backend
+├── README.md
+├── cmd
+│   └── api
+│       └── main.go
+├── docker-compose.yml
+├── go.mod
+├── go.sum
+├── internal
+│   ├── api
+│   │   ├── alerts
+│   │   ├── app.go
+│   │   ├── auth
+│   │   ├── devices
+│   │   ├── router.go
+│   │   ├── sensors
+│   │   └── ws
+│   ├── appcore
+│   │   └── app.go
+│   ├── config
+│   │   └── config.go
+│   ├── domain
+│   │   └── models.go
+│   ├── middleware
+│   │   ├── JWT.go
+│   │   ├── cors.go
+│   │   └── rbac.go
+│   ├── repository
+│   │   ├── alert_repository.go
+│   │   ├── device_repository.go
+│   │   ├── sensor_repository.go
+│   │   └── user_repo.go
+│   ├── service
+│   │   ├── alert_service.go
+│   │   ├── auth_service.go
+│   │   ├── device_Service.go
+│   │   └── sensor_service.go
+│   ├── utils
+│   │   ├── JWT.go
+│   │   ├── hash.go
+│   │   └── logger.go
+│   └── ws
+│       ├── broadcaster.go
+│       ├── client.go
+│       └── hub.go
+├── pkg
+│   └── db
+│       └── postgres.go
+├── scripts
+│   └── seed.go
+└── tests
+    └── integration
+```
+
 ---
 
 ## 1) Objetivos, Alcance y Criterios de Aceptación
@@ -355,4 +411,4 @@ Token JWT comprometido	Alto	Expiración corta, rotación, revoke-list temporal e
 
 ### 15) Conclusión
 
-El stack Go + React + WS + (PostgreSQL) nos dio un MVP performante, mantenible y seguro. El diseño prioriza simplicidad, resiliencia y una ruta. Los retos enfrentados (ruido, reconexión, CORS) se abordaron con técnicas diferentes tecnicas para su solucion.
+El stack Go + React + WS + (PostgreSQL) dio un MVP performante, mantenible y seguro. El diseño prioriza simplicidad, resiliencia y una ruta. Los retos enfrentados (ruido, reconexión, CORS) se abordaron con técnicas diferentes para su solucion.

@@ -16,18 +16,7 @@ export default defineConfig({
         background_color: "#111827",
         display: "standalone",
         start_url: "/",
-        icons: [
-          {
-            src: "/pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "/pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
+        icons: [],
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
@@ -48,6 +37,34 @@ export default defineConfig({
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/(tiles\.openstreetmap\.org|api\.maptiler\.com|tile\.openstreetmap\.fr)\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "map-tiles",
+              expiration: {
+                maxEntries: 1000,
+                maxAgeSeconds: 60 * 60 * 24 * 14, // 14 días
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/(cdn\.maptiler\.com|api\.mapbox\.com|basemaps\.cartocdn\.com)\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "map-styles",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
               },
             },
           },

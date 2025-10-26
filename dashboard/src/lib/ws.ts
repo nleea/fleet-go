@@ -9,6 +9,7 @@ export class FleetWebSocket {
   private reconnectTimeout: number | null = null
   private url: string
   private token: string
+  private shouldReconnect = true
 
   // callbacks separados
   private onAlertCallback: ((alert: Alert) => void) | null = null
@@ -56,7 +57,9 @@ export class FleetWebSocket {
 
       this.ws.onclose = () => {
         console.log("[WS] Conexión cerrada, reconectando en 5s...")
-        this.reconnectTimeout = window.setTimeout(() => this.connect(), 5000)
+        if (this.shouldReconnect) {
+          this.reconnectTimeout = window.setTimeout(() => this.connect(), 5000)
+        }
       }
     } catch (error) {
       console.error("[WS] Error al conectar:", error)
@@ -73,6 +76,7 @@ export class FleetWebSocket {
   }
 
   disconnect() {
+    this.shouldReconnect = false
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout)
     }
