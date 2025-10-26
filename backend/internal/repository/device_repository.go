@@ -10,6 +10,8 @@ type DeviceRepository interface {
 	GetAll() ([]domain.Device, error)
 	GetByOwner(userID uint) ([]domain.Device, error)
 	GetByExternalID(extID string) (*domain.Device, error)
+	GetByDeviceIdID(deviceId uint) (*domain.Device, error)
+
 }
 
 type deviceRepository struct {
@@ -39,6 +41,15 @@ func (r *deviceRepository) GetByOwner(userID uint) ([]domain.Device, error) {
 func (r *deviceRepository) GetByExternalID(extID string) (*domain.Device, error) {
 	var device domain.Device
 	err := r.db.Where("external_id = ?", extID).First(&device).Error
+	if err != nil {
+		return nil, err
+	}
+	return &device, nil
+}
+
+func (r *deviceRepository) GetByDeviceIdID(deviceId uint) (*domain.Device, error) {
+	var device domain.Device
+	err := r.db.Where("id = ?", deviceId).First(&device).Error
 	if err != nil {
 		return nil, err
 	}

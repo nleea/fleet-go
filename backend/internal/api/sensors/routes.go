@@ -26,7 +26,7 @@ func RegisterRoutes(rg *gin.RouterGroup, app *appcore.App) {
 
 	sensorRepo := repository.NewSensorRepository(app.DB)
 	alertRepo := repository.NewAlertRepository(app.DB)
-	sensorService := service.NewSensorService(sensorRepo, alertRepo, app.Hub)
+	sensorService := service.NewSensorService(sensorRepo, alertRepo, app.Hub, repository.NewDeviceRepository(app.DB))
 
 	group.POST("/data", func(c *gin.Context) {
 		var input sensorInput

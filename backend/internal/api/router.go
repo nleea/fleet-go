@@ -17,12 +17,14 @@ import (
 
 func SetupRouter(app *appcore.App) *gin.Engine {
 	r := gin.Default()
+	r.Use(middleware.CORSMiddleware())
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok", "env": app.Config.Env})
 	})
 
 	v1 := r.Group("/api/v1")
+
 	auth.RegisterRoutes(v1, app)
 
 	protected := v1.Group("/protected")

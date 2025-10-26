@@ -22,7 +22,7 @@ func RegisterRoutes(rg *gin.RouterGroup, app *appcore.App) {
 	deviceRepo := repository.NewDeviceRepository(app.DB)
 	deviceService := service.NewDeviceService(deviceRepo)
 
-	group.GET("/all", middleware.RequireRoles("admin"), func(c *gin.Context) {
+	group.GET("/all", middleware.RequireRoles("admin","user"), func(c *gin.Context) {
 		devices, err := deviceService.ListAll()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

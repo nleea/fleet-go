@@ -1,0 +1,11 @@
+{
+  "name": "Dashboard IoT - Simon Movilidad",
+  "short_name": "IoT Dashboard",
+  "description": "Sistema de monitoreo IoT en tiempo real para flotas vehiculares",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": []
+}
