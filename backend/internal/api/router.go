@@ -7,6 +7,7 @@ import (
 	"github.com/nleea/fleet-monitoring/backend/internal/api/auth"
 	"github.com/nleea/fleet-monitoring/backend/internal/api/devices"
 	"github.com/nleea/fleet-monitoring/backend/internal/api/sensors"
+	"github.com/nleea/fleet-monitoring/backend/internal/api/user"
 
 	"github.com/nleea/fleet-monitoring/backend/internal/appcore"
 
@@ -44,9 +45,11 @@ func SetupRouter(app *appcore.App) *gin.Engine {
 	devicesgroup.Use(middleware.JWTAuth([]byte(app.Config.JWTSecret)))
 	devices.RegisterRoutes(devicesgroup, app)
 
+	usergroup := protected.Group("/user")
+	usergroup.Use(middleware.JWTAuth([]byte(app.Config.JWTSecret)))
+	user.RegisterRoutes(usergroup, app)
 
 	wsapi.RegisterRoutes(v1, app, app.Hub)
 
-	
 	return r
 }
