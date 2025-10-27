@@ -60,3 +60,16 @@ Fleet Monitoring es una aplicación **Fullstack** que integra sensores IoT simul
   - Historial de alertas y telemetría.  
 - La sincronización se retoma automáticamente al reconectarse.
 
+# Usuarios
+
+admin:
+
+admin@example.com
+admin123
+
+user:
+
+user@example.com
+user123
+
+---
