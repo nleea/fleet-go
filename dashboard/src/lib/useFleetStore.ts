@@ -57,6 +57,18 @@ interface FleetState {
   disconnectWebSocket: () => void
 }
 
+let flushTimer: number | null = null
+let lastSnapshot: Record<string, TelemetryPoint[]> | null = null
+
+const scheduleTelemetryFlush = (snapshot: Record<string, TelemetryPoint[]>) => {
+  lastSnapshot = snapshot
+  if (flushTimer) return
+  flushTimer = window.setTimeout(async () => {
+    try { await localStore.set("telemetry_global", lastSnapshot, 6 * 60 * 60 * 1000) }
+    finally { flushTimer = null; lastSnapshot = null }
+  }, 1000)
+}
+
 export const useFleetStore = create<FleetState>((set, get) => ({
   isOnline: navigator.onLine,
   devices: [],
@@ -64,6 +76,7 @@ export const useFleetStore = create<FleetState>((set, get) => ({
   telemetry: {},
   lastSync: null,
   ws: null as FleetWebSocket | null,
+
 
   connectWebSocket: (token: string, rol: string) => {
     if (get().ws) return
@@ -75,13 +88,13 @@ export const useFleetStore = create<FleetState>((set, get) => ({
         const payload = JSON.parse(alertData.payload)
 
         const alertBody = {
-          id: alertData.id,
-          deviceId: alertData.device_id,
-          deviceName: payload?.device_name || "Desconocido",
+          id: String(alertData.id),
+          deviceId: String(alertData.device_id),
+          deviceName: payload.device_name ?? "Desconocido",
           message: alertData.message,
           timestamp: new Date(alertData.timestamp),
-          acknowledged: payload?.autonomy_minutes || 0,
-          autonomyHours: payload?.autonomy_hours || 0,
+          acknowledged: !!payload.acknowledged,
+          autonomyHours: Number(payload.autonomy_hours ?? 0),
         }
         get().addAlertpoint(alertBody)
 
@@ -213,10 +226,13 @@ export const useFleetStore = create<FleetState>((set, get) => ({
 
   addTelemetryPoint: async (deviceId, point) => {
     const current = get().telemetry
-    const deviceData = current[deviceId] || []
-    const updated = [...deviceData, point].slice(-1000)
+    const deviceData = current[deviceId] ?? []
+    const updatedList = [...deviceData, point].slice(-1000)
+    const updated = { ...current, [deviceId]: updatedList }
 
-    await get().setTelemetry(deviceId, updated)
+    set({ telemetry: updated })
+    scheduleTelemetryFlush(updated)
+    await localStore.set(`telemetry_${deviceId}`, updatedList, 6 * 60 * 60 * 1000)
   },
 
   addAlertpoint: async (alert) => {
