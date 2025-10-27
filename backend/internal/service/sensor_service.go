@@ -218,7 +218,7 @@ func (s *SensorService) PredictiveFuelCheck(deviceID uint) (bool, float64, error
 	log.Printf("       Autonomía: %.0f min (%.1fh) | Umbral: %.1fh | ALERTA:%v",
 		autonomiaMinutos, autonomiaHoras, alertThresholdHours, debeAlertar)
 
-	// Debug: mostrar últimos 5 intervalos
+	// mostrar últimos 5 intervalos
 	if len(intervalos) > 0 {
 		log.Printf("       Últimos intervalos:")
 		limite := 5

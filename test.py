@@ -74,7 +74,7 @@ def simulate_device(device):
 
         # Descenso progresivo del combustible
         if device["id"] == 1:
-            device["fuel"] = max(0, round(device["fuel"] - random.uniform(0.03, 0.10), 2))
+            device["fuel"] = max(0, round(device["fuel"] - random.uniform(0.05, 0.15), 2))
         else:
             device["fuel"] = max(0, round(device["fuel"] - random.uniform(0.01, 0.04), 2))
 
